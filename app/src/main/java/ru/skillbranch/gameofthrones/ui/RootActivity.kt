@@ -3,6 +3,7 @@ package ru.skillbranch.gameofthrones.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
@@ -46,6 +47,6 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun initViewModel() {
-        TODO("Not yet implemented")
+        viewModel = ViewModelProviders.of(this).get(RootViewModel::class.java)
     }
 }

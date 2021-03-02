@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.skillbranch.gameofthrones.extensions.isNetworkAvailable
+import ru.skillbranch.gameofthrones.extensions.mutableLiveData
 import ru.skillbranch.gameofthrones.repositories.RootRepository
 
 class RootViewModel(val app:Application) : AndroidViewModel(app) {
@@ -15,8 +16,8 @@ class RootViewModel(val app:Application) : AndroidViewModel(app) {
         val result: MutableLiveData<LoadResult<Boolean>> =
             mutableLiveData(LoadResult.Loading(false))
         viewModelScope.launch(Dispatchers.IO) {
-            if (repository.isNeedUpdate()) {
-                if (!app.applicationContext.isNetworkAvailable) { //extension
+            if (true) {
+                if (!app.applicationContext.isNetworkAvailable) {
                     result.postValue(LoadResult.Error("Интернет не доступен, приложение может работать некорректно"))
                     return@launch
                 }
@@ -28,13 +29,7 @@ class RootViewModel(val app:Application) : AndroidViewModel(app) {
             }
         }
         return result
-
     }
-
-    private fun mutableLiveData(loading: LoadResult.Loading<Boolean>): MutableLiveData<LoadResult<Boolean>> {
-        return MutableLiveData(LoadResult.Loading<Boolean>(false))
-    }
-
 }
 
 sealed class LoadResult<T>(

@@ -1,13 +1,31 @@
 package ru.skillbranch.gameofthrones.repositories
 
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.*
+import org.xml.sax.ErrorHandler
+import ru.skillbranch.gameofthrones.AppConfig
+import ru.skillbranch.gameofthrones.data.local.DbManager
+import ru.skillbranch.gameofthrones.data.local.dao.CharactersDao
+import ru.skillbranch.gameofthrones.data.local.dao.HouseDao
+import ru.skillbranch.gameofthrones.data.local.entities.Character
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterItem
+import ru.skillbranch.gameofthrones.data.local.entities.House
+import ru.skillbranch.gameofthrones.data.remote.NetworkService
+import ru.skillbranch.gameofthrones.data.remote.RestService
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
 
 object RootRepository {
+    private val api:RestService = NetworkService.api
+    private val houseDao: HouseDao = DbManager.db.houseDao()
+    private val characterDao: CharactersDao = DbManager.db.charactersDao()
 
+    private val errHandler = CoroutineExceptionHandler { _, exception ->
+        println("Caught $exception")
+        exception.printStackTrace()
+    }
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + errHandler)
     /**
      * Получение данных о всех домах из сети
      * @param result - колбек содержащий в себе список данных о домах
@@ -24,9 +42,13 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouses(vararg houseNames: String, result : (houses : List<HouseRes>) -> Unit) {
-        //TODO implement me
+        scope.launch { result(needHouses(*houseNames)) }
     }
-
+    suspend fun needHouses(vararg houseNames:String):List<HouseRes>{
+        return houseNames.fold(mutableListOf()){ acc, title ->
+            acc.also { it.add(api.houseByName(title).first()) }
+        }
+    }
     /**
      * Получение данных о требуемых домах по их полным именам и персонажах в каждом из домов из сети
      * @param houseNames - массив полных названий домов (смотри AppConfig)
@@ -34,7 +56,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouseWithCharacters(vararg houseNames: String, result : (houses : List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
-        //TODO implement me
+        scope.launch { result(needHouseWithCharacters(*houseNames)) }
     }
 
     /**
@@ -45,7 +67,11 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun insertHouses(houses : List<HouseRes>, complete: () -> Unit) {
-        //TODO implement me
+        val list:List<House> = houses.map { it.toHouse() }
+        scope.launch {
+            houseDao.insert(list)
+            complete()
+        }
     }
 
     /**
@@ -89,18 +115,57 @@ object RootRepository {
     fun findCharacterFullById(id : String, result: (character : CharacterFull) -> Unit) {
         //TODO implement me
     }
+    fun findCharacterFullById(id : String):CharacterFull {
+        TODO("inplement me")
+    }
+    fun findCharacters(houseName:String) = characterDao.findCharacters(houseName)
 
     /**
      * Метод возвращет true если в базе нет ни одной записи, иначе false
      * @param result - колбек о завершении очистки db
      */
-    fun isNeedUpdate(result: (isNeed : Boolean) -> Unit = {}):Boolean{
+    fun isNeedUpdate(result: (isNeed : Boolean) -> Unit){
         //TODO implement me
-        return false
     }
 
-    fun sync() {
-        TODO("Not yet implemented")
+    suspend fun needHouseWithCharacters(vararg houseNames:String):List<Pair<HouseRes, List<CharacterRes>>>{
+        val result = mutableListOf<Pair<HouseRes, List<CharacterRes>>>()
+        var houses: List<HouseRes>? = null
+        getNeedHouses(*houseNames){
+            houses = it
+        }
+        scope.launch {
+            houses?.forEach{ house ->
+                var i = 0
+                val characters = mutableListOf<CharacterRes>()
+                result.add(house to characters)
+                house.swornMembers.forEach{character ->
+                    launch(CoroutineName("character $character")) {
+                        api.charter(character)
+                            .apply { houseId = house.shortName }
+                            .also { characters.add(it) }
+                        i++
+                    }
+                }
+            }
+        }.join()
+        return result
+    }
+
+    suspend fun sync() {
+        val pairs:List<Pair<HouseRes, List<CharacterRes>>> = needHouseWithCharacters(*AppConfig.NEED_HOUSES)
+        val initial = mutableListOf<House>() to mutableListOf<Character>()
+        val lists = pairs.fold(initial){
+            acc, (houseRes, charactersList) ->
+            val house = houseRes.toHouse()
+            val characters = charactersList.map{it.toCharacter()}
+            acc.also{ (hs, ch) ->
+                hs.add(house)
+                ch.addAll(characters)
+            }
+        }
+        houseDao.upsert(lists.first)
+        characterDao.upsert(lists.second)
     }
 
 }

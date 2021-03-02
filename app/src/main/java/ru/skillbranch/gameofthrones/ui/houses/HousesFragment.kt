@@ -1,60 +1,120 @@
 package ru.skillbranch.gameofthrones.ui.houses
 
+import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.*
+import android.widget.SearchView
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.annotation.ColorInt
+import androidx.core.animation.doOnEnd
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.tabs.TabLayout
 import ru.skillbranch.gameofthrones.R
+import ru.skillbranch.gameofthrones.databinding.FragmentHousesBinding
+import ru.skillbranch.gameofthrones.ui.RootActivity
+import kotlin.math.hypot
+import kotlin.math.max
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HousesFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HousesFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    lateinit var binding: FragmentHousesBinding
+    private lateinit var colors:Array<Int>
+    private lateinit var housesPagerAdapter:HousesPagerAdapter
 
+    @ColorInt
+    private var currentColor:Int = -1
     override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+        housesPagerAdapter = HousesPagerAdapter(childFragmentManager)
+        colors = requireContext().run {
+            arrayOf(
+                getColor(R.color.stark_primary),
+                getColor(R.color.lannister_primary),
+                getColor(R.color.targaryen_primary),
+                getColor(R.color.baratheon_primary),
+                getColor(R.color.greyjoy_primary),
+                getColor(R.color.martel_primary),
+                getColor(R.color.tyrel_primary)
+
+            )
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_search, menu)
+        with(menu.findItem(R.id.action_search)?.actionView as SearchView){
+            queryHint = "Search character"
+        }
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_houses, container, false)
+        binding = FragmentHousesBinding.inflate(layoutInflater)
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HousesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HousesFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (requireActivity() as RootActivity).setSupportActionBar(binding.toolbar)
+        if (currentColor != -1) binding.appbar.setBackgroundColor(currentColor)
+        binding.viewPager.adapter = housesPagerAdapter
+        with(binding.tabs){
+            setupWithViewPager(binding.viewPager)
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    val position: Int = tab?.position ?: -1
+                    if ((binding.appbar.solidColor ) != colors[position]) {
+                        val rect = Rect()
+                        val tabView = tab?.view as View
+                        tabView.postDelayed(
+                            {
+                                tabView.getGlobalVisibleRect(rect)
+                                animateAppBarReval(position, rect.centerX(), rect.centerY())
+                            },
+                            300
+                        )
+//                        tabView.getGlobalVisibleRect(rect)
+//                        animateAppBarReval(position, rect.centerX(), rect.centerY())
+                    }
                 }
-            }
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+                override fun onTabReselected(tab: TabLayout.Tab?) {}
+
+            })
+        }
     }
+
+    private fun animateAppBarReval(position: Int, centerX: Int, centerY: Int) {
+        val endRadius = max(
+            hypot(centerX.toDouble(), centerY.toDouble()),
+            hypot(binding.appbar.width.toDouble() - centerX.toDouble(), centerY.toDouble())
+        )
+        with(binding.revealView){
+            visibility = View.VISIBLE
+            setBackgroundColor(colors[position])
+        }
+        ViewAnimationUtils.createCircularReveal(
+            binding.revealView,
+            centerX,
+            centerY,
+            0f,
+            endRadius.toFloat()
+        ).apply {
+            doOnEnd {
+                binding.appbar.setBackgroundColor(colors[position])
+                binding.revealView.visibility = View.INVISIBLE
+            }
+            start()
+        }
+        currentColor = colors[position]
+    }
+
 }
