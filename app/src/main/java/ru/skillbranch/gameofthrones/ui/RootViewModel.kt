@@ -25,7 +25,7 @@ class RootViewModel(val app:Application) : AndroidViewModel(app) {
                 repository.sync() //suspend
                 result.postValue(LoadResult.Success(true))
             } else {
-                delay(5000)
+                delay(10000)
                 result.postValue(LoadResult.Success(true))
             }
         }
