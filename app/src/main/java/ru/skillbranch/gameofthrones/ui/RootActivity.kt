@@ -23,6 +23,11 @@ class RootActivity : AppCompatActivity() {
         initViewModel()
         savedInstanceState ?: prepareData()
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     private fun prepareData() {

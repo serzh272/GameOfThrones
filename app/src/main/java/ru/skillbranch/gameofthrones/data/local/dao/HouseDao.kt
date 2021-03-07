@@ -13,6 +13,11 @@ interface HouseDao : BaseDao<House>{
     """)
     suspend fun recordsCount():Int
 
+    @Query("""
+        DELETE FROM houses
+    """)
+    suspend fun deleteAll()
+
     @Transaction
     fun upsert(objList: List<House>){
         insert(objList)

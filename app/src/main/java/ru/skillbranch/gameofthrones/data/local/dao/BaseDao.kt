@@ -1,5 +1,6 @@
 package ru.skillbranch.gameofthrones.data.local.dao
 
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
@@ -10,4 +11,5 @@ interface BaseDao<T:Any> {
 
     @Update
     fun update(obj:List<T>)
+
 }

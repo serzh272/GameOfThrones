@@ -5,7 +5,7 @@ import ru.skillbranch.gameofthrones.data.local.entities.House
 import ru.skillbranch.gameofthrones.data.local.entities.HouseType
 
 data class HouseRes(
-    @Json(name = "")
+    @Json(name = "url")
     val url: String,
     @Json(name = "name")
     val name: String,
@@ -40,7 +40,7 @@ data class HouseRes(
 ) : IRes {
     fun toHouse():House {
         return House(
-            HouseType.fromString(name),
+            HouseType.fromString(shortName),
             name,
             region,
             coatOfArms,
@@ -62,15 +62,16 @@ data class HouseRes(
         get() = name.split(" ")
             .dropLastUntil{it == "of"}
             .last()
-    val motherId:List<String>
+    val members:List<String>
         get() = swornMembers.map { it.lastSegment() }
 }
 
-private fun <E> List<E>.dropLastUntil(predicate: (E) -> Boolean): List<E> {
+fun <E> List<E>.dropLastUntil(predicate: (E) -> Boolean): List<E> {
     if (!isEmpty()) {
         val iterator = listIterator(size)
         while (iterator.hasPrevious()) {
-            if (!predicate(iterator.previous())) {
+            val pr = iterator.previous()
+            if (predicate(pr)) {
                 return take(iterator.nextIndex())
             }
         }

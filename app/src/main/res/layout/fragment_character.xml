@@ -24,7 +24,7 @@
             app:expandedTitleMarginBottom="64dp"
             app:expandedTitleTextAppearance="@style/CollapsingTitleAppearance"
             app:layout_scrollFlags="exitUntilCollapsed|scroll"
-            app:title="Artos Stark"
+            tools:title="Artos Stark"
             app:toolbarId="@id/toolbar">
 
             <ru.skillbranch.gameofthrones.ui.custom.AspectRatioImageView
@@ -35,7 +35,8 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/stark_coast_of_arms"
                 app:layout_collapseMode="parallax"
-                tools:visibility="visible" />
+                tools:visibility="visible"
+                app:aspectRatio="0.673"/>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -63,7 +64,7 @@
                 android:id="@+id/tv_words_label"
                 android:layout_width="104dp"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_icon_decor"
+                android:drawableLeft="@drawable/ic_icon_decor"
                 android:drawablePadding="8dp"
                 android:drawableTint="?attr/colorAccent"
                 android:fontFamily="sans-serif-medium"
@@ -90,7 +91,7 @@
                 android:layout_width="104dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:drawableStart="@drawable/ic_icon_decor"
+                android:drawableLeft="@drawable/ic_icon_decor"
                 android:drawablePadding="8dp"
                 android:drawableTint="?attr/colorAccent"
                 android:fontFamily="sans-serif-medium"
@@ -117,7 +118,7 @@
                 android:layout_width="104dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:drawableStart="@drawable/ic_icon_decor"
+                android:drawableLeft="@drawable/ic_icon_decor"
                 android:drawablePadding="8dp"
                 android:drawableTint="?attr/colorAccent"
                 android:fontFamily="sans-serif-medium"
@@ -144,7 +145,7 @@
                 android:layout_width="104dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:drawableStart="@drawable/ic_icon_decor"
+                android:drawableLeft="@drawable/ic_icon_decor"
                 android:drawablePadding="8dp"
                 android:drawableTint="?attr/colorAccent"
                 android:fontFamily="sans-serif-medium"
@@ -164,7 +165,8 @@
                 android:textSize="16sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/tv_aliases_label"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tv_aliases_label" />
+                app:layout_constraintStart_toEndOf="@id/tv_aliases_label"
+                tools:text="Aliases • Aliases • Aliases • Aliases • Aliases • Aliases • Aliases • Aliases • Aliases • Aliases • "/>
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/group_father"
@@ -196,7 +198,7 @@
                 android:backgroundTint="?attr/colorPrimary"
                 android:textColor="@android:color/white"
                 app:layout_constraintStart_toEndOf="@id/tv_father_label"
-                app:layout_constraintTop_toBottomOf="@id/tv_aliases_label"/>
+                app:layout_constraintTop_toBottomOf="@id/tv_aliases"/>
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/barrier"
                 android:layout_width="wrap_content"

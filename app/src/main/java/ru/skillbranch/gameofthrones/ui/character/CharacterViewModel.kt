@@ -14,7 +14,7 @@ class CharacterViewModel(private val characterId:String): ViewModel() {
     val repository = RootRepository
 
     fun getCharacter(): LiveData<CharacterFull> {
-        return MutableLiveData(repository.findCharacterFullById(characterId))
+        return repository.findCharacterFullById(characterId)
     }
 
     //CharacterViewModelFactory
@@ -22,7 +22,7 @@ class CharacterViewModel(private val characterId:String): ViewModel() {
 
 class CharacterViewModelFactory(private val characterId:String): ViewModelProvider.Factory{
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HouseViewModel::class.java)){
+        if (modelClass.isAssignableFrom(CharacterViewModel::class.java)){
             return CharacterViewModel(characterId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

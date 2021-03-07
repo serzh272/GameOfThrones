@@ -16,7 +16,8 @@ class RootViewModel(val app:Application) : AndroidViewModel(app) {
         val result: MutableLiveData<LoadResult<Boolean>> =
             mutableLiveData(LoadResult.Loading(false))
         viewModelScope.launch(Dispatchers.IO) {
-            if (true) {
+            var isNeedUpdate = repository.isNeedUpdate()
+            if (isNeedUpdate) {
                 if (!app.applicationContext.isNetworkAvailable) {
                     result.postValue(LoadResult.Error("Интернет не доступен, приложение может работать некорректно"))
                     return@launch

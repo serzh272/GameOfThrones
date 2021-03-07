@@ -3,8 +3,10 @@ package ru.skillbranch.gameofthrones.ui.character
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavArgs
@@ -15,9 +17,6 @@ import ru.skillbranch.gameofthrones.R
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
 import ru.skillbranch.gameofthrones.data.local.entities.HouseType
 import ru.skillbranch.gameofthrones.databinding.FragmentCharacterBinding
-import ru.skillbranch.gameofthrones.databinding.FragmentHouseBinding
-import ru.skillbranch.gameofthrones.databinding.FragmentHousesBinding
-import ru.skillbranch.gameofthrones.databinding.ItemCharacterBinding
 import ru.skillbranch.gameofthrones.ui.RootActivity
 
 class CharacterFragment : Fragment() {
@@ -27,6 +26,7 @@ class CharacterFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProviders.of(this,CharacterViewModelFactory(args.characterId)).get(CharacterViewModel::class.java)
+
     }
 
     override fun onCreateView(
@@ -47,6 +47,7 @@ class CharacterFragment : Fragment() {
         rootActivity.setSupportActionBar(binding.toolbar)
         rootActivity.supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
+
             title = args.title
         }
         binding.ivArms.setImageResource(arms)
@@ -57,11 +58,12 @@ class CharacterFragment : Fragment() {
         }
         binding.collapsingLayout.post{binding.collapsingLayout.requestLayout()}
         mViewModel.getCharacter().observe(this, Observer<CharacterFull>{character ->
-            if (character == null) return@Observer
+
             val iconColor = requireContext().getColor(houseType.accentColor)
             listOf(binding.tvWordsLabel, binding.tvBornLabel, binding.tvTitlesLabel, binding.tvAliasesLabel).forEach{
                 it.compoundDrawables.first().setTint(iconColor)
             }
+            if (character == null) return@Observer
             binding.tvWords.text = character.words
             binding.tvBorn.text = character.born
             binding.tvTitles.text = character.titles

@@ -43,7 +43,7 @@ data class CharacterRes(
 
     fun toCharacter():Character {
         return Character(
-            name,
+            id,
             name,
             gender,
             culture,
@@ -51,9 +51,9 @@ data class CharacterRes(
             died,
             titles,
             aliases,
-            father,
-            mother,
-            spouse,
+            fatherId,
+            motherId,
+            spouseId,
             HouseType.fromString(houseId)
         )
     }
@@ -63,6 +63,8 @@ data class CharacterRes(
         get() = father.lastSegment()
     val motherId
         get() = mother.lastSegment()
+    val spouseId
+        get() = spouse.lastSegment()
 }
 
 interface IRes {

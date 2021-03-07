@@ -19,6 +19,11 @@ interface CharactersDao :BaseDao<Character>{
     )
     fun findCharacters(title: String):LiveData<List<CharacterItem>>
 
+    @Query("""
+        DELETE FROM characters
+    """)
+    fun deleteAll()
+
     @Query(
         """
             SELECT * FROM CharacterItem
@@ -33,14 +38,6 @@ interface CharactersDao :BaseDao<Character>{
         """
     )
     fun findCharacter(characterId: String):LiveData<CharacterFull>
-
-    @Query(
-        """
-            SELECT * FROM CharacterFull
-            WHERE id = :characterId
-        """
-    )
-    fun findCharacterFull(characterId: String):CharacterFull
 
     @Transaction
     fun upsert(objList: List<Character>){

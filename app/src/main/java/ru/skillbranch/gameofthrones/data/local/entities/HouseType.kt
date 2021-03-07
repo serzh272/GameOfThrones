@@ -1,5 +1,6 @@
 package ru.skillbranch.gameofthrones.data.local.entities
 
+import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import ru.skillbranch.gameofthrones.R
@@ -59,7 +60,7 @@ enum class HouseType(
         R.color.greyjoy_dark
     ),
     MARTEL(
-        "Martel",
+        "Martell",
         R.drawable.martel_icon,
         R.drawable.martel_coast_of_arms,
         R.color.martel_primary,
@@ -83,9 +84,12 @@ enum class HouseType(
                 "Targaryen" -> TARGARYEN
                 "Baratheon" -> BARATHEON
                 "Greyjoy" -> GREYJOY
-                "Martel" -> MARTEL
+                "Martell" -> MARTEL
                 "Tyrell" -> TYRELL
-                else -> throw IllegalStateException("unknown house $title")
+                else -> {
+                    Log.d("M_HouseType", "house title $title")
+                    throw IllegalStateException("unknown house $title")
+                }
             }
         }
     }

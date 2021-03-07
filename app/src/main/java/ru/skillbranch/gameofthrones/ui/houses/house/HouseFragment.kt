@@ -28,7 +28,7 @@ class HouseFragment: Fragment() {
         val houseName:String = arguments?.getString(HOUSE_NAME) ?: HouseType.STARK.title
         val vmFactory = HouseViewModelFactory(houseName)
         charactersAdapter = CharactersAdapter{
-            val action = HousesFragmentDirections.actionNavHousesToNavCharacter(it.id, it.house, it.house.title)
+            val action = HousesFragmentDirections.actionNavHousesToNavCharacter(it.id, it.house.title, it.name)
             findNavController().navigate(action)
         }
         viewModel = ViewModelProviders.of(this, vmFactory).get(HouseViewModel::class.java)
@@ -67,7 +67,7 @@ class HouseFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(binding.rvCharactersList){
+        with(binding.rvCharacterList){
             layoutManager = LinearLayoutManager(context)
             addItemDecoration(ItemDivider())
             adapter = charactersAdapter
